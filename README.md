@@ -1,5 +1,5 @@
 # ai-tasks-assistant-startup
-A startup file for Open Interpreter 
+A startup file for launching an Open Interpreter session. On startup a list of saved conversations is shown that the user can load and continue to work from. If no selection is made a new conversation will be started.
 
 # Setup
 Run `pip install -r requirements.txt`to install any packages needed
