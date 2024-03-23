@@ -1,3 +1,11 @@
 
 .env
 litellm_uuid.txt
+./Lib
+./Scripts
+./share
+./Include
+/Lib
+/Scripts
+/share
+pyvenv.cfg

@@ -6,11 +6,11 @@ import os
 import json    
 
 isGPT = True
-modelSelection = input("\r\n Select a model: \r\n \r\n 1.) GPT-4-Turbo \r\n 2.) Claude 3 Opus ")
+modelSelection = input("\r\n Select a model: \r\n \r\n 1.) GPT-4-Turbo \r\n 2.) Claude 3 Opus \r\n \r\n Enter your choice: ")
 
-if modelSelection == 1:
+if int(modelSelection) == 1:
     isGPT = True;
-elif modelSelection == 2:
+elif int(modelSelection) == 2:
     isGPT = False
 
 print("Loading conversations...")
@@ -49,7 +49,7 @@ else:
 # Rest of the task-assistant.py startup code goes here
 
 if isGPT: 
-    interpreter.llm.api_key = os.getenv("GPT_API_KEY")
+    interpreter.llm.api_key = str(os.getenv("GPT_API_KEY"))
     interpreter.llm.model = "gpt-4-turbo-preview"
     interpreter.llm.temperature = 0.3
     interpreter.llm.context_window = 128000
@@ -57,7 +57,7 @@ if isGPT:
     interpreter.llm.supports_functions = True
 else: #other model you want to use
     interpreter.llm.model = "claude-3-opus-20240229"
-    interpreter.llm.api_key = os.getenv("CLAUDE_API_KEY")
+    interpreter.llm.api_key = str(os.getenv("CLAUDE_API_KEY"))
     interpreter.llm.temperature = 0.20
     interpreter.llm.context_window = 200000
     interpreter.llm.supports_vision = False
