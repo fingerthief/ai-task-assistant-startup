@@ -1,9 +1,21 @@
+
 from dotenv import load_dotenv
-load_dotenv()
 
 from interpreter import interpreter
 import os               
-import json          
+import json    
+
+isGPT = True
+modelSelection = input("\r\n Select a model: \r\n \r\n 1.) GPT-4-Turbo \r\n 2.) Claude 3 Opus ")
+
+if modelSelection == 1:
+    isGPT = True;
+elif modelSelection == 2:
+    isGPT = False
+
+print("Loading conversations...")
+
+load_dotenv()
 
 # Get the list of conversation files and their last modified times
 conversations_dir = os.getenv("CONVERSATIONS_DIR")       
@@ -36,8 +48,6 @@ else:
 
 # Rest of the task-assistant.py startup code goes here
 
-isGPT = True
-
 if isGPT: 
     interpreter.llm.api_key = os.getenv("GPT_API_KEY")
     interpreter.llm.model = "gpt-4-turbo-preview"
@@ -46,9 +56,9 @@ if isGPT:
     interpreter.llm.supports_vision = True
     interpreter.llm.supports_functions = True
 else: #other model you want to use
-    interpreter.llm.model = "claude-3-opus-20240229" # Not officially supported
+    interpreter.llm.model = "claude-3-opus-20240229"
     interpreter.llm.api_key = os.getenv("CLAUDE_API_KEY")
-    interpreter.llm.temperature = 0.15
+    interpreter.llm.temperature = 0.20
     interpreter.llm.context_window = 200000
     interpreter.llm.supports_vision = False
     
