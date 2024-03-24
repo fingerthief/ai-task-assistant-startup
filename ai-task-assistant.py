@@ -1,8 +1,8 @@
-
 import os
 import json
 from dotenv import load_dotenv
 from interpreter import interpreter
+
 # Load environment variables
 load_dotenv()
 
@@ -12,7 +12,7 @@ model_configurations = {
     2: {"model": "claude-3-opus-20240229", "temperature": 0.15, "context_window": 200000, "max_tokens": 4096, "api_key": os.getenv("CLAUDE_API_KEY")},
     3: {"model": "claude-3-sonnet-20240229", "temperature": 0.15, "context_window": 200000, "max_tokens": 4096, "api_key": os.getenv("CLAUDE_API_KEY")},
     4: {"model": "claude-3-haiku-20240307", "temperature": 0.15, "context_window": 200000, "max_tokens": 4096, "api_key": os.getenv("CLAUDE_API_KEY")},
-    5: {"model": "openai/x", "temperature": 0.15, "context_window": 16000, "max_tokens": 4096, "api_base": "http://localhost:1234/v1", "api_key": "lm-studio"}
+    5: {"model": "openai/x", "temperature": 0.1, "context_window": 32768, "max_tokens": 4096, "api_base": "http://localhost:1234/v1", "api_key": "lm-studio"}
 }
 
 def load_conversation(conversations_dir):

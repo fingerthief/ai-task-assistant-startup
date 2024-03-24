@@ -9,3 +9,4 @@ litellm_uuid.txt
 /Scripts
 /share
 pyvenv.cfg
+test.py
