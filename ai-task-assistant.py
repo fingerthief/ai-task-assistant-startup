@@ -1,70 +1,79 @@
 
+import os
+import json
 from dotenv import load_dotenv
-
 from interpreter import interpreter
-import os               
-import json    
-
-isGPT = True
-modelSelection = input("\r\n Select a model: \r\n \r\n 1.) GPT-4-Turbo \r\n 2.) Claude 3 Opus \r\n \r\n Enter your choice: ")
-
-if int(modelSelection) == 1:
-    isGPT = True;
-elif int(modelSelection) == 2:
-    isGPT = False
-
-print("Loading conversations...")
-
+# Load environment variables
 load_dotenv()
 
-# Get the list of conversation files and their last modified times
-conversations_dir = os.getenv("CONVERSATIONS_DIR")       
-conversation_files = os.listdir(conversations_dir)                         
-conversation_files_with_times = [(file, os.path.getmtime(os.path.join(conversations_dir, file))) for file in conversation_files]
+# Configuration for model selection
+model_configurations = {
+    1: {"model": "gpt-4-turbo-preview", "temperature": 0.15, "context_window": 128000, "max_tokens": 4096, "api_key": os.getenv("GPT_API_KEY")},
+    2: {"model": "claude-3-opus-20240229", "temperature": 0.15, "context_window": 200000, "max_tokens": 4096, "api_key": os.getenv("CLAUDE_API_KEY")},
+    3: {"model": "claude-3-sonnet-20240229", "temperature": 0.15, "context_window": 200000, "max_tokens": 4096, "api_key": os.getenv("CLAUDE_API_KEY")},
+    4: {"model": "claude-3-haiku-20240307", "temperature": 0.15, "context_window": 200000, "max_tokens": 4096, "api_key": os.getenv("CLAUDE_API_KEY")},
+    5: {"model": "openai/x", "temperature": 0.15, "context_window": 16000, "max_tokens": 4096, "api_base": "http://localhost:1234/v1", "api_key": "lm-studio"}
+}
 
-# Sort the files by last modified time, most recent first
-conversation_files_sorted = sorted(conversation_files_with_times, key=lambda x: x[1], reverse=True)
-
-# Display the list of conversations and prompt the user to select one                         
-print("Saved conversations:")                         
-for i, (filename, _) in enumerate(conversation_files_sorted, start=1):                         
-    print(f"{i}. {filename}")                         
-
-selection = input("Enter the number of the conversation to load, or press Enter to continue without loading: ")                         
-
-if selection:                         
-    # Load the selected conversation                         
-    index = int(selection) - 1                         
-    selected_file = conversation_files_sorted[index][0]                         
-    conversation_path = os.path.join(conversations_dir, selected_file)                         
-
-    with open(conversation_path, "r") as f:                         
-        loaded_messages = json.load(f)                         
-
-    interpreter.messages = loaded_messages                         
-    print(f"Loaded conversation from {selected_file}")                         
-else:                         
-    print("Continuing without loading a conversation")                         
-
-# Rest of the task-assistant.py startup code goes here
-
-if isGPT: 
-    interpreter.llm.api_key = str(os.getenv("GPT_API_KEY"))
-    interpreter.llm.model = "gpt-4-turbo-preview"
-    interpreter.llm.temperature = 0.3
-    interpreter.llm.context_window = 128000
-    interpreter.llm.supports_vision = True
-    interpreter.llm.supports_functions = True
-else: #other model you want to use
-    interpreter.llm.model = "claude-3-opus-20240229"
-    interpreter.llm.api_key = str(os.getenv("CLAUDE_API_KEY"))
-    interpreter.llm.temperature = 0.20
-    interpreter.llm.context_window = 200000
-    interpreter.llm.supports_vision = False
+def load_conversation(conversations_dir):
+    """Load a conversation from the specified directory."""
     
-interpreter.llm.max_tokens = 4096
-interpreter.auto_run = True
+    conversation_files = [f for f in os.listdir(conversations_dir) if f.endswith('.json')]
+    conversation_files_sorted = sorted(conversation_files, reverse=True)
 
-messages = interpreter.chat()
+    for i, file in enumerate(conversation_files_sorted, start=1):
+        print(f"{i}. {file}")
 
-interpreter.messages = messages
+    selection = input("Enter the number of the conversation to load, or press enter to continue without loading: ")
+    if selection:
+        index = int(selection) - 1
+        selected_file = conversation_files_sorted[index]
+        conversation_path = os.path.join(conversations_dir, selected_file)
+        
+        with open(conversation_path, "r") as f:
+            loaded_messages = json.load(f)
+            
+        print(f"Loaded conversation from {selected_file}")
+        return loaded_messages
+    else:
+        print("Continuing without loading a conversation")
+        return []
+
+def configure_model(model_selection):
+    """Configure the model based on user selection."""
+    
+    if model_selection in model_configurations:
+        config = model_configurations[model_selection]
+        
+        # Assuming 'interpreter' and 'llm' are predefined objects in the script
+        interpreter.llm.model = config["model"]
+        interpreter.llm.temperature = config["temperature"]
+        interpreter.llm.context_window = config["context_window"]
+        interpreter.llm.max_tokens = config["max_tokens"]
+        interpreter.llm.api_key = config["api_key"]
+        
+        if "api_base" in config:
+            interpreter.llm.api_base = config["api_base"]
+            
+        print(f"Configured model: {config['model']}")
+    else:
+        print("Invalid model selection. Please restart and select a valid option.")
+
+def main():
+    conversations_dir = os.getenv("CONVERSATIONS_DIR")
+    loaded_messages = load_conversation(conversations_dir)
+    interpreter.messages = loaded_messages
+
+    print("Select the model to use:")
+    for key, value in model_configurations.items():
+        print(f"{key}: {value['model']}")
+        
+    model_selection = int(input("Enter the model number: "))
+    configure_model(model_selection)
+
+    interpreter.auto_run = True
+    messages = interpreter.chat()
+    interpreter.messages = messages
+
+if __name__ == "__main__":
+    main()
